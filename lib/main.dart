@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import 'quote.dart';
 
@@ -10,12 +9,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Chuck Norris Quote',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
-      home: new MyHomePage(title: 'Quote'),
+      home: MyHomePage(title: 'Quote'),
     );
   }
 }
@@ -29,10 +29,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-//   List<Quote> list = List();
-//   List<Quote> randomQuote = List();
-
-   String quote, image;
+   Quote random;
    var isLoading = false;
 
    _fetchRandomQuote() async {
@@ -43,15 +40,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final response =  await http.get("https://api.chucknorris.io/jokes/random");
 
     if (response.statusCode == 200) {
-      var responseJSON = json.decode(response.body);
-
-//      Quote random = parseQuote(responseJSON);
-//      print(random.value);
+      random = parseQuote(response.body);
 
       setState(() {
         isLoading = false;
-        image = responseJSON['icon_url'];
-        quote = responseJSON['value'];
       });
 
     } else {
@@ -61,8 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _fetchRandomQuote();
     super.initState();
+     _fetchRandomQuote();
   }
 
   @override
@@ -80,14 +72,14 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
       ),
-      body: Center(
-        child: showQuote(image, quote)
-      ),
+    body: Center(
+      child: isLoading ? CircularProgressIndicator() : showQuote(random),
+    ),
     );
   }
 }
 
-Widget showQuote (String image, String quote){
+Widget showQuote (Quote quote){
   TextStyle estilo = TextStyle(
     fontSize: 24.0,
     fontStyle: FontStyle.italic,
@@ -99,9 +91,9 @@ Widget showQuote (String image, String quote){
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Image.network(image),
+        Image.network(quote.icon_url),
         SizedBox(height: 50.0),
-        Text(quote, style: estilo, textAlign: TextAlign.center),
+        Text(quote.value, style: estilo, textAlign: TextAlign.center),
       ],
     ),
   );

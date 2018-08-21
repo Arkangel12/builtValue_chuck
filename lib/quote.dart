@@ -1,11 +1,15 @@
 import 'dart:convert' as json;
 import 'package:built_value/built_value.dart';
+import 'package:built_value/serializer.dart';
+import 'serializers.dart';
 
 part 'quote.g.dart';
 
 abstract class Quote implements Built<Quote, QuoteBuilder> {
-  String get icon_url;
+  static Serializer<Quote> get serializer => _$quoteSerializer;
+
   String get id;
+  String get icon_url;
   String get url;
   String get value;
 
@@ -14,8 +18,7 @@ abstract class Quote implements Built<Quote, QuoteBuilder> {
 }
 
 Quote parseQuote(String jsonString){
-  return null;
-//  final parsed = json.jsonDecode(jsonString);
-//  Quote quote = Quote.fromJson(parsed);
-//  return quote;
+  final parsed = json.jsonDecode(jsonString);
+  Quote quote = standardSerializers.deserializeWith(Quote.serializer, parsed);
+  return quote;
 }
